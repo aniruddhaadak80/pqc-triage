@@ -96,11 +96,12 @@ const STATEMENTS: string[] = [
   `CREATE INDEX IF NOT EXISTS classifier_feedback_session_idx ON classifier_feedback (session_id, id)`,
 
   `CREATE TABLE IF NOT EXISTS idempotency_keys (
-     key text PRIMARY KEY,
+     key text NOT NULL,
      session_id text NOT NULL,
      scope text NOT NULL,
      response text NOT NULL,
-     created_at text NOT NULL
+     created_at text NOT NULL,
+     PRIMARY KEY (session_id, scope, key)
    )`,
 
   // Additive migrations. `CREATE TABLE IF NOT EXISTS` will not add a column to
@@ -110,25 +111,38 @@ const STATEMENTS: string[] = [
   `ALTER TABLE surfaces ADD COLUMN IF NOT EXISTS family_from_model integer NOT NULL DEFAULT 0`,
   `ALTER TABLE surfaces ADD COLUMN IF NOT EXISTS model_confidence double precision`,
   `ALTER TABLE surfaces ADD COLUMN IF NOT EXISTS enrichment text`,
+
+  // The idempotency table originally keyed on `key` alone while every read
+  // filtered on the owner, so two anonymous sessions that happened to pick the
+  // same idempotency key collided: the first insert won and the second session
+  // could never cache its own response. Re-key on the owner.
+  `ALTER TABLE idempotency_keys DROP CONSTRAINT IF EXISTS idempotency_keys_pkey`,
+  `ALTER TABLE idempotency_keys ADD PRIMARY KEY (session_id, scope, key)`,
 ];
 
 let schemaPromise: Promise<void> | null = null;
 
+/**
+ * Run the schema once per process.
+ *
+ * The memo covers the explicit-executor form as well, because the statements are
+ * all idempotent but not all of them are free: re-running the primary-key
+ * migration on every request would rebuild the index each time. A failure clears
+ * the memo so the next caller retries instead of inheriting the error forever.
+ */
 export async function ensureSchema(db?: SqlExecutor): Promise<void> {
-  if (!db) {
-    if (!schemaPromise) {
-      schemaPromise = getDb().then(async (executor) => {
-        for (const statement of STATEMENTS) {
-          await executor.query(statement);
-        }
-      });
-    }
-    await schemaPromise;
-    return;
+  if (!schemaPromise) {
+    schemaPromise = (async () => {
+      const executor = db ?? (await getDb());
+      for (const statement of STATEMENTS) {
+        await executor.query(statement);
+      }
+    })().catch((error: unknown) => {
+      schemaPromise = null;
+      throw error;
+    });
   }
-  for (const statement of STATEMENTS) {
-    await db.query(statement);
-  }
+  await schemaPromise;
 }
 
 /** Test hook: allow a fresh suite to rebuild the schema. */

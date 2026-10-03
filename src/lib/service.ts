@@ -759,7 +759,7 @@ export async function readIdempotent(
   await ensureSchema(db);
   const rows = await db.query<{ response: string }>(
     "SELECT response FROM idempotency_keys WHERE key = $1 AND session_id = $2 AND scope = $3",
-    [`${scope}:${key}`, sessionId, scope],
+    [key, sessionId, scope],
   );
   const row = rows.rows[0];
   return row ? (JSON.parse(row.response) as unknown) : null;
@@ -776,8 +776,8 @@ export async function writeIdempotent(
   await db.query(
     `INSERT INTO idempotency_keys (key, session_id, scope, response, created_at)
      VALUES ($1, $2, $3, $4, $5)
-     ON CONFLICT (key) DO NOTHING`,
-    [`${scope}:${key}`, sessionId, scope, JSON.stringify(response), new Date().toISOString()],
+     ON CONFLICT (session_id, scope, key) DO NOTHING`,
+    [key, sessionId, scope, JSON.stringify(response), new Date().toISOString()],
   );
 }
 
