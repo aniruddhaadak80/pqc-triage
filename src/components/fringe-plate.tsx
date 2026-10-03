@@ -87,32 +87,39 @@ export function FringePlate({
           aria-hidden="true"
         />
 
-        {items.map((item, index) => {
-          const left = position(item.decryptableFrom);
-          const barHeight = Math.max(6, (Math.min(100, Math.max(0, item.score)) / 100) * (plotHeight - 26));
-          const stagger = (index % 3) * 3;
-          const before = left < 0;
-          return (
-            <div key={item.id} className="absolute bottom-0" style={{ left: `${left}%` }} title={`${item.label}: ${BAND_LABEL[item.band]} ${item.score}, decryptable from ${item.decryptableFrom}, start by ${item.mustStartBy}`}>
-              <div className="absolute bottom-[26px] flex flex-col justify-end" style={{ height: `${plotHeight - 26}px` }}>
-                <div
-                  className={`fringe-live w-[2px] ${BAND_BG[item.band]}`}
-                  style={{ height: `${barHeight}px`, animationDelay: `${stagger * 900}ms` }}
-                />
-                <div
-                  className={`absolute w-[2px] opacity-40 ${BAND_BG[item.band]}`}
-                  style={{ left: "4px", bottom: 0, height: `${Math.max(3, barHeight - stagger * 6)}px` }}
-                  aria-hidden="true"
-                />
+        {/* Fringes are clipped to the plot so a surface that is already
+            decryptable, and therefore plots to the left of the first tick,
+            cannot draw outside the plate. The label strip sits below the
+            grating, so the clip layer stops short of the year labels. */}
+        <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+          {items.map((item, index) => {
+            const left = position(item.decryptableFrom);
+            const before = left < 0;
+            const after = left > 100;
+            const drawn = Math.min(100, Math.max(0, left));
+            const barHeight = Math.max(6, (Math.min(100, Math.max(0, item.score)) / 100) * (plotHeight - 26));
+            const stagger = (index % 3) * 3;
+            return (
+              <div key={item.id} className="absolute bottom-0" style={{ left: `${drawn}%` }} title={`${item.label}: ${BAND_LABEL[item.band]} ${item.score}, decryptable from ${item.decryptableFrom}, start by ${item.mustStartBy}`}>
+                <div className="absolute bottom-[26px] flex flex-col justify-end" style={{ height: `${plotHeight - 26}px` }}>
+                  <div
+                    className={`fringe-live w-[2px] ${BAND_BG[item.band]}`}
+                    style={{ height: `${barHeight}px`, animationDelay: `${stagger * 900}ms` }}
+                  />
+                  <div
+                    className={`absolute w-[2px] opacity-40 ${BAND_BG[item.band]}`}
+                    style={{ left: "4px", bottom: 0, height: `${Math.max(3, barHeight - stagger * 6)}px` }}
+                  />
+                </div>
+                {before || after ? (
+                  <span className="readout absolute bottom-[26px] left-[3px] text-[0.6rem] text-critical">
+                    !
+                  </span>
+                ) : null}
               </div>
-              {before ? (
-                <span className="readout absolute bottom-[26px] left-[-6px] text-[0.6rem] text-critical" aria-hidden="true">
-                  !
-                </span>
-              ) : null}
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
 
         <div className="absolute left-2 top-1.5 flex gap-3 text-[0.62rem] text-ink-3" aria-hidden="true">
           <span className="readout">H {horizonYear}</span>
