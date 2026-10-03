@@ -47,7 +47,7 @@ Zero API keys. Runs offline on an embedded Postgres. Every number carries its ci
 - **Honest live data.** deps.dev release metadata, OSV advisories, arXiv preprints and the
   NIST news feed, each reporting `live` or `fallback` with a sealed dated sample that is
   never presented as current.
-- **An agent interface that cannot cheat.** MCP JSON-RPC 2.0 with ten typed tools. The
+- **An agent interface that cannot cheat.** MCP JSON-RPC 2.0 with eleven typed tools. The
   mutating tools call the same service functions the buttons do, scoped to one owner, with
   idempotency keys.
 - **An audit chain you can replay.** Every create, decision and retire appends a SHA-384
@@ -172,7 +172,7 @@ One envelope for every endpoint and every tool call.
 
 ## 🤖 Agent console
 
-Ten typed tools over MCP-style JSON-RPC 2.0 at `/api/mcp`. The mutating tools call the
+Eleven typed tools over MCP-style JSON-RPC 2.0 at `/api/mcp`. The mutating tools call the
 same service functions the buttons on the site call.
 
 ```json

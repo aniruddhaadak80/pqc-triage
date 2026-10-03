@@ -204,7 +204,7 @@ export function AgentConsole({ ownerHint }: { ownerHint: string }) {
         <p className="mt-2 text-[0.8rem] leading-relaxed text-ink-2">
           JSON-RPC 2.0 over HTTP POST. Your anonymous owner scope is <span className="readout">{ownerHint}</span>; an
           agent that does not keep cookies should pass it back as{" "}
-          <span className="readout">params.ownerToken</span>. Ten tools: two read, three analysis, three mutating, plus
+          <span className="readout">params.ownerToken</span>. Eleven tools: two read, four analysis, three mutating, plus
           integrity and export.
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
