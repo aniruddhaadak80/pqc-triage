@@ -70,9 +70,14 @@ export default async function AgentPage() {
         title="JSON-RPC 2.0 console"
         lede="Ten typed tools over live HTTP. The mutating ones call the same service functions the buttons on this site call, so an agent cannot reach a state a person could not."
         aside={
-          <Link href="/mcp.json" className="border border-rule bg-paper-2 px-3 py-2 text-[0.82rem] font-medium hover:bg-paper-3">
+          {/* A plain anchor, not a Link: /mcp.json is a static file, and Next
+              would prefetch it as a route and log a 404. */}
+          <a
+            href="/mcp.json"
+            className="border border-rule bg-paper-2 px-3 py-2 text-[0.82rem] font-medium hover:bg-paper-3"
+          >
             mcp.json
-          </Link>
+          </a>
         }
       />
       <SpectralRule className="mt-5" />
