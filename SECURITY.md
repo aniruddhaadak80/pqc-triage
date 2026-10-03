@@ -50,8 +50,9 @@ Please report, privately:
 
 ## Reporting
 
-Email **security@pqc-triage.pages.dev** or open a private security advisory at
-<https://github.com/aniruddhaadak80/pqc-triage/security/advisories/new>.
+Open a private security advisory at
+<https://github.com/aniruddhaadak80/pqc-triage/security/advisories/new>. Please do not open a
+public issue for a vulnerability.
 
 Please include the endpoint, the request, the observed response, and `/api/health` output.
 Give reasonable time for a fix before disclosing publicly. You will get an acknowledgement,
