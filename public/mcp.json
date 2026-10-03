@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-06-18/server.schema.json",
+  "name": "io.github.aniruddhaadak/pqc-triage",
+  "description": "Post-quantum cryptography migration triage. Import a real dependency manifest and source excerpt, read the cryptographic surfaces a cryptographically relevant quantum computer breaks first, record a decision per surface, and export a sealed migration plan. Deterministic engine, published NIST and quantum resource citations, append-only SHA-384 audit chain.",
+  "version": "1.0.0",
+  "repository": {
+    "url": "https://github.com/aniruddhaadak80/pqc-triage",
+    "source": "github"
+  },
+  "websiteUrl": "https://pqc-triage.vercel.app",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "pqc-triage",
+      "version": "1.0.0",
+      "transport": {
+        "type": "http",
+        "url": "https://pqc-triage.vercel.app/api/mcp"
+      }
+    }
+  ]
+}

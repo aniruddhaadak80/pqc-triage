@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: typecheck, lint, test, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+  browser:
+    name: browser journey (desktop and mobile)
+    runs-on: windows-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Browser journey
+        run: npx playwright install msedge
+      - name: Run
+        run: npm run test:browser
+
+  integrity:
+    name: no committed secrets
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Tracked files must not carry secrets
+        run: |
+          set -euo pipefail
+          if git ls-files --error-unmatch '.env' '.env.local' >/dev/null 2>&1; then
+            echo "::error::a .env file is tracked"
+            exit 1
+          fi
+          if git ls-files | grep -E '(^|/)(node_modules|\.next|\.pgdata)/' >/dev/null; then
+            echo "::error::generated output is tracked"
+            exit 1
+          fi
+          if git grep -nIE '(BEGIN (RSA|OPENSSH|EC|PGP) PRIVATE KEY|ghp_[A-Za-z0-9]{30,}|sk-[A-Za-z0-9]{32,}|postgres(ql)?://[^[:space:]]+:[^[:space:]]+@)' -- \
+             ':!package-lock.json' ':!docs/**' >/dev/null; then
+            echo "::error::a credential-shaped string is present in a tracked file"
+            exit 1
+          fi
+          echo "clean"
+
+      - name: Whitespace errors
+        run: git diff --check $(git rev-list --max-parents=0 HEAD) || true
+
+      - name: Dependency audit
+        run: npm audit --audit-level=high

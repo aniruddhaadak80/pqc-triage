@@ -1,0 +1,32 @@
+---
+name: Feature or model change
+about: A new capability, or a change to the scoring table, the deadline rule, or the resource model
+title: ""
+labels: enhancement
+assignees: ""
+---
+
+**The problem**
+
+<!-- Who is stuck, and what does it cost them today? "The manifest is a mess" is a symptom;
+     "I cannot tell which of 40 RSA call sites actually matters" is the problem. -->
+
+**What you want to be able to do**
+
+**How you would tell it worked**
+
+**Domain changes**
+
+If this touches the engine, the registry, the deadline arithmetic or the resource model,
+please fill this in. A domain change without a citation will not be merged.
+
+- Which files: `src/lib/engine.ts`, `src/lib/crypto-registry.ts`, `src/lib/resource.ts`
+- The published source for the new value, with a URL:
+- The normal, boundary, empty and malformed cases you expect:
+- How determinism is preserved:
+
+**Alternatives you considered**
+
+**Screenshots or a reproduction**
+
+<!-- For a visual change, a before/after at the same viewport is worth more than prose. -->

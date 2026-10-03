@@ -1,0 +1,40 @@
+---
+name: Bug report
+about: Something in PQC Triage behaves wrongly, or a claim in it is untrue
+title: ""
+labels: bug
+assignees: ""
+---
+
+**What happened**
+
+<!-- The wrong behaviour, in one or two sentences. -->
+
+**What I expected**
+
+**Steps to reproduce**
+
+1.
+2.
+3.
+
+**Environment**
+
+- Deployment or local: <!-- live alias, or `npm run dev` -->
+- `/api/health` output:
+  ```
+  {"store":"...","writeProbe":true,"engineVersion":"..."}
+  ```
+- Browser and viewport:
+- Node version:
+
+**Evidence**
+
+<!-- A curl command, a JSON response, or a screenshot. Redact anything sensitive:
+     do not paste a real manifest with internal package names if you would rather not. -->
+
+**Anything else**
+
+<!-- If this is about a score, a factor weight, or a deadline, say which surface and which
+     published source you believe is wrong. Disagreements about the model are welcome and
+     are not security reports. -->

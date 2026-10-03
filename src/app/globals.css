@@ -1,0 +1,169 @@
+@import "tailwindcss";
+
+/**
+ * Diffraction plate.
+ *
+ * The interface is a printed spectroscopy plate: warm paper, hairline grating
+ * rules, and spectral bands that stand in for diffraction orders. Exposure is
+ * shown as the position and brightness of a band rather than as a gauge, because
+ * that is what an interference pattern actually is.
+ */
+
+@theme {
+  --color-paper: #f2efe7;
+  --color-paper-2: #e9e4d7;
+  --color-paper-3: #ded7c6;
+  --color-ink: #14110d;
+  --color-ink-2: #3d362c;
+  --color-ink-3: #6b6152;
+  --color-rule: #c9c0ac;
+
+  /* Diffraction orders, first order outward. */
+  --color-order-1: #b4305e;
+  --color-order-2: #7a3ea8;
+  --color-order-3: #1f6f8b;
+  --color-order-4: #2e7d5b;
+  --color-order-5: #a8620a;
+
+  --color-caution: #a8620a;
+  --color-critical: #a32b22;
+  --color-clear: #2e7d5b;
+
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-readout: var(--font-spline-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+:root {
+  color-scheme: light;
+  --plate-grating: repeating-linear-gradient(
+    to right,
+    color-mix(in oklab, var(--color-rule) 55%, transparent) 0 1px,
+    transparent 1px 7px
+  );
+  --spectrum: linear-gradient(
+    90deg,
+    var(--color-order-1) 0%,
+    var(--color-order-2) 22%,
+    var(--color-order-3) 46%,
+    var(--color-order-4) 70%,
+    var(--color-order-5) 100%
+  );
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-feature-settings: "ss01" on, "cv01" on;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus is always visible, on paper as well as on ink. */
+:focus-visible {
+  outline: 2px solid var(--color-order-2);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--color-order-1) 24%, transparent);
+}
+
+.grating {
+  background-image: var(--plate-grating);
+}
+
+.spectral-band {
+  background-image: var(--spectrum);
+}
+
+.hairline {
+  border-color: var(--color-rule);
+}
+
+.readout {
+  font-family: var(--font-readout);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.display {
+  font-family: var(--font-display);
+  font-variation-settings: "SOFT" 12, "WONK" 1;
+  letter-spacing: -0.015em;
+}
+
+/* Small caps index labels, like a plate legend. */
+.plate-label {
+  font-family: var(--font-readout);
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+}
+
+.sr-only-focusable:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+@keyframes fringe-shift {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-7px);
+  }
+}
+
+.fringe-live {
+  animation: fringe-shift 6s linear infinite;
+}
+
+@keyframes band-in {
+  from {
+    opacity: 0;
+    transform: scaleX(0.82);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+.band-in {
+  animation: band-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .fringe-live,
+  .band-in {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
