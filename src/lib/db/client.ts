@@ -54,19 +54,24 @@ export function assertStoreUsable(kind: StoreKind): void {
 }
 
 async function createExecutor(): Promise<{ executor: SqlExecutor; store: StoreKind }> {
-  if (hasHostedDatabaseUrl()) {
+  // Decide and validate the store before anything touches the filesystem: on a
+  // serverless runtime the embedded adapter would otherwise fail with an
+  // opaque read-only-filesystem error instead of a sentence explaining itself.
+  const kind = storeKind();
+  assertStoreUsable(kind);
+
+  if (kind === "neon-postgres") {
     const { createNeonExecutor } = await import("./neon");
-    return { executor: await createNeonExecutor(process.env.DATABASE_URL!.trim()), store: "neon-postgres" };
+    return { executor: await createNeonExecutor(process.env.DATABASE_URL!.trim()), store: kind };
   }
   const { createPgliteExecutor } = await import("./pglite");
-  return { executor: await createPgliteExecutor(), store: "pglite-embedded" };
+  return { executor: await createPgliteExecutor(), store: kind };
 }
 
 export async function getDb(): Promise<SqlExecutor> {
   if (cache.executor) return cache.executor;
   if (!cache.ready) {
     cache.ready = createExecutor().then(({ executor, store }) => {
-      assertStoreUsable(store);
       cache.executor = executor;
       cache.store = store;
     });
