@@ -99,5 +99,11 @@ jobs:
       - name: Whitespace errors
         run: git diff --check $(git rev-list --max-parents=0 HEAD) || true
 
+      # Audits what actually ships. The dev tree pulls `braces` (GHSA-vfj7-8cjw-p6xm,
+      # high) through eslint-config-next -> @next/eslint-plugin-next -> fast-glob ->
+      # micromatch, and that advisory has no patched release at any version
+      # (`braces <= 3.0.3`, first_patched_version: none), so the only thing
+      # `npm audit fix` offers is downgrading eslint-config-next to 14.x. None of
+      # that reaches the production runtime. Prod deps audit clean.
       - name: Dependency audit
-        run: npm audit --audit-level=high
+        run: npm audit --audit-level=high --omit=dev
