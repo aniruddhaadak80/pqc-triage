@@ -85,8 +85,12 @@ jobs:
             echo "::error::generated output is tracked"
             exit 1
           fi
+          # `.env.example` is the documented template of placeholder values, so its
+          # commented-out sample Postgres URL trips the URL shape below without being
+          # a credential. It stays covered by the tracked-`.env` check above; the real
+          # env files are still scanned.
           if git grep -nIE '(BEGIN (RSA|OPENSSH|EC|PGP) PRIVATE KEY|ghp_[A-Za-z0-9]{30,}|sk-[A-Za-z0-9]{32,}|postgres(ql)?://[^[:space:]]+:[^[:space:]]+@)' -- \
-             ':!package-lock.json' ':!docs/**' >/dev/null; then
+             ':!package-lock.json' ':!docs/**' ':!.env.example' >/dev/null; then
             echo "::error::a credential-shaped string is present in a tracked file"
             exit 1
           fi
